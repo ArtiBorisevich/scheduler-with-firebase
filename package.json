@@ -1,0 +1,19 @@
+{
+  "name": "firebase",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build-watch": "vite build --watch ",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "dhtmlx-scheduler": "^7.2.5",
+    "firebase": "^11.9.1"
+  }
+}
