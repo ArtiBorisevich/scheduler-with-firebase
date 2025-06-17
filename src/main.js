@@ -12,7 +12,6 @@ import {
 	orderBy,
 	doc,
 	updateDoc,
-	getDoc,
 } from "firebase/firestore";
 
 import "dhtmlx-scheduler/codebase/dhtmlxscheduler.css";
@@ -33,6 +32,7 @@ const db = getFirestore(app);
 scheduler.plugins({
 	recurring: true
 });
+
 scheduler.config.header = [
 	"day",
 	"week",
@@ -42,6 +42,13 @@ scheduler.config.header = [
 	"today",
 	"next",
 ];
+
+scheduler.templates.parse_date = function(date){
+	if (!(date instanceof Date)) {
+		date = new Date(date);
+	}
+    return date;
+};
 
 scheduler.init("scheduler_here", new Date(2022, 3, 20), "week");
 
