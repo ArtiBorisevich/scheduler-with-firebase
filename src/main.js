@@ -1,8 +1,6 @@
 import { scheduler } from "dhtmlx-scheduler";
-//import { db } from "./firebase.js";
-import { initializeApp } from "firebase/app";
+import { db } from "./firebase.js";
 import {
-	getFirestore,
 	collection,
 	query,
 	onSnapshot,
@@ -16,21 +14,8 @@ import {
 
 import "dhtmlx-scheduler/codebase/dhtmlxscheduler.css";
 
-const firebaseConfig = {
-	apiKey: "AIzaSyAP6cwDpAiCK7AQgXvf0c5MzJDZGlXfcA0",
-	authDomain: "version-2-3e1ba.firebaseapp.com",
-	projectId: "version-2-3e1ba",
-	storageBucket: "version-2-3e1ba.firebasestorage.app",
-	messagingSenderId: "764827077218",
-	appId: "1:764827077218:web:568f42d454d68991475f3b",
-	measurementId: "G-85B4WPRX4N",
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
 scheduler.plugins({
-	recurring: true
+	recurring: true,
 });
 
 scheduler.config.header = [
@@ -43,11 +28,11 @@ scheduler.config.header = [
 	"next",
 ];
 
-scheduler.templates.parse_date = function(date){
+scheduler.templates.parse_date = function (date) {
 	if (!(date instanceof Date)) {
 		date = new Date(date);
 	}
-    return date;
+	return date;
 };
 
 scheduler.init("scheduler_here", new Date(2022, 3, 20), "week");
@@ -56,41 +41,41 @@ const eventsRef = collection(db, "events");
 
 scheduler.createDataProcessor(async function (entity, action, ev, id) {
 	switch (action) {
-		case "create": {
-			if (ev._fromFirestore) return;
-			const createdDoc = await addDoc(eventsRef, serialize(ev));
-			if (createdDoc.id) {
-				return { "action": "inserted", "tid": createdDoc.id }
+		case "create":
+			{
+				if (ev._fromFirestore) return;
+				const createdDoc = await addDoc(eventsRef, serialize(ev));
+				if (createdDoc.id) {
+					return { action: "inserted", tid: createdDoc.id };
+				}
 			}
-		}
 			break;
-		case "update": {
-			return updateDoc(doc(db, "events", id), serialize(ev));
-			// const updatedDoc = await updateDoc(doc(db, "events", id), serialize(ev));
-			// if (updatedDoc.id){
-			// 	return {"action":"updated", "tid": updatedDoc.id}
-			// }
-		}
-			break;
-		case "delete": {
-			const deletedDoc = await deleteDoc(doc(db, "events", id));
-			if (deletedDoc) {
-				return { "action": "deleted" }
+		case "update":
+			{
+				return updateDoc(doc(db, "events", id), serialize(ev));
 			}
-		}
+			break;
+		case "delete":
+			{
+				const deletedDoc = await deleteDoc(doc(db, "events", id));
+				if (deletedDoc) {
+					return { action: "deleted" };
+				}
+			}
 			break;
 	}
 });
-
 
 // Helper function to process event data
 const processEvent = (docSnapshot) => {
 	const event = docSnapshot.data();
 	event.id = docSnapshot.id;
-	['start_date', 'end_date', 'original_start'].forEach(field => {
+	["start_date", "end_date", "original_start"].forEach((field) => {
 		if (event[field]) {
 			try {
-				const date = event[field].toDate ? event[field].toDate() : new Date(event[field]);
+				const date = event[field].toDate
+					? event[field].toDate()
+					: new Date(event[field]);
 				event[field] = date;
 			} catch (e) {
 				console.error(`Error processing ${field}:`, e);
@@ -133,8 +118,8 @@ function handleAddEvent(eventData) {
 		return;
 	}
 	// Convert all date fields to Date objects if they aren't already
-	const dateFields = ['start_date', 'end_date', 'original_start'];
-	dateFields.forEach(field => {
+	const dateFields = ["start_date", "end_date", "original_start"];
+	dateFields.forEach((field) => {
 		if (eventData[field] && !(eventData[field] instanceof Date)) {
 			eventData[field] = new Date(eventData[field]);
 		}
@@ -239,7 +224,12 @@ function ignore(code) {
 
 const serialize = (event) => {
 	const filteredEvent = Object.fromEntries(
-		Object.entries(event).filter(([key]) => !key.startsWith('_') && key !== 'id' && key !== '!nativeeditor_status')
+		Object.entries(event).filter(
+			([key]) =>
+				!key.startsWith("_") &&
+				key !== "id" &&
+				key !== "!nativeeditor_status"
+		)
 	);
 	const serialized = { ...filteredEvent };
 	serialized._fromFirestore = true; // Mark as coming from Firestore
@@ -286,5 +276,3 @@ const serialize = (event) => {
 // 		console.error("Update failed:", error);
 // 	}
 // });
-
-
